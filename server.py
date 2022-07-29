@@ -29,7 +29,7 @@ def handle_client(conn, addr):
 				print(f"[{addr}]: {msg}")
 				with clients_lock:
 					for c in clients:
-						c.sendall(f"[{addr}]: {msg}")
+						c.sendall(f"[{addr}]: {msg}".encode(FORMAT))
 	finally:
 		with clients_lock:
 			clients.remove(conn)
