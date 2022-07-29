@@ -4,8 +4,8 @@ import threading
 HEADER = 64
 FORMAT = 'utf-8'
 DISCONNECT_MSG = "!d"
-PORT = 5000
-SERVER = "26.200.3.189"
+PORT = 150
+SERVER = "192.168.0.2"
 
 ADDR = (SERVER, PORT)
 
