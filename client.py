@@ -1,14 +1,21 @@
 import socket
+import threading
+import time
 
 HEADER = 64
 FORMAT = 'utf-8'
-SERVER = "26.200.3.189"
+SERVER = "116.73.57.12"
 DISCONNECT_MSG = "!d"
-PORT = 5000
+PORT = 150
 ADDR = (SERVER,PORT)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(ADDR)
+
+def recieve():
+	while True:
+		msg = client.recv(1024).decode(FORMAT)
+		print(msg)
 
 def send(msg):
 	message = msg.encode(FORMAT)
@@ -19,7 +26,13 @@ def send(msg):
 	client.send(message)
 
 while True:
+	thread = threading.Thread(target=recieve)
+	thread.start()
 	msg = input("Enter message to send >> ")
 	if msg == DISCONNECT_MSG:
+		send(msg)
+		time.sleep(1)
 		break
 	send(msg)
+
+print("[DISCONNECTED]")
