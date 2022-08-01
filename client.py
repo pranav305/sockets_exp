@@ -1,38 +1,58 @@
+from PyQt5.QtWidgets import *
+from PyQt5 import uic
+from PyQt5.QtCore import *
+import sys
 import socket
 import threading
 import time
 
-HEADER = 64
 FORMAT = 'utf-8'
-SERVER = "116.73.57.12"
 DISCONNECT_MSG = "!d"
-PORT = 150
-ADDR = (SERVER,PORT)
+class MainUI(QMainWindow):
+	def __init__(self):
+		super().__init__()
+		uic.loadUi("app.ui", self)
+		self.ConnectBTN.clicked.connect(self.connect_server)
+		self.SendBTN.clicked.connect(self.send)
+		self.DisconnectBTN.clicked.connect(self.disconnect)
+		self.show()
+	
+	def connect_server(self):
+		self.server = self.IPEdit.text()
+		self.port = self.PortEdit.text()
+		self.addr = (self.server, self.port)
 
-client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-client.connect(ADDR)
+		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.client.connect(self.addr)
+		
+		time.sleep(0.5)
+		
+		self.client.sendall(f"# new user: {self.UsernameEdit.text()}".encode(FORMAT))
+	
+	def recieve(self):
+		messages = []
+		while True:
+			msg = self.client.recv(1024).decode(FORMAT)
+			messages.append(msg)
+			# display messages[] in UsersDisplay 
 
-def recieve():
-	while True:
-		msg = client.recv(1024).decode(FORMAT)
-		print(msg)
+	def send(self):
+		msg = self.messageEdit.text()
+		self.messageEdit.clear()
 
-def send(msg):
-	message = msg.encode(FORMAT)
-	msg_length = len(message)
-	send_length = str(msg_length).encode(FORMAT)
-	send_length += b' ' * (HEADER - len(send_length))
-	client.send(send_length)
-	client.send(message)
+		message = msg.encode(FORMAT)
+		self.client.sendall(message)
+	
+	def disconnect(self):
+		self.send(DISCONNECT_MSG)
 
-while True:
 	thread = threading.Thread(target=recieve)
 	thread.start()
-	msg = input("Enter message to send >> ")
-	if msg == DISCONNECT_MSG:
-		send(msg)
-		time.sleep(1)
-		break
-	send(msg)
 
-print("[DISCONNECTED]")
+
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    UIWindow = MainUI()
+    app.exec_()
