@@ -29,12 +29,6 @@ class MainUI(QMainWindow):
 		
 		self.client.sendall(f"# new user: {self.UsernameEdit.text()}".encode(FORMAT))
 	
-	def recieve(self):
-		messages = []
-		while True:
-			msg = self.client.recv(1024).decode(FORMAT)
-			messages.append(msg)
-			# display messages[] in UsersDisplay 
 
 	def send(self):
 		msg = self.messageEdit.text()
@@ -44,15 +38,17 @@ class MainUI(QMainWindow):
 		self.client.sendall(message)
 	
 	def disconnect(self):
-		self.send(DISCONNECT_MSG)
+		self.client.sendall(DISCONNECT_MSG.encode(FORMAT))
 
-	thread = threading.Thread(target=recieve)
-	thread.start()
-
-
+# def recieve():
+# 		while True:
+# 			msg = UIWindow.client.recv(1024).decode(FORMAT)
+# 			UIWindow.MessagesDisplay.insertPlainText(msg)
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    UIWindow = MainUI()
-    app.exec_()
+	app = QApplication(sys.argv)
+	UIWindow = MainUI()
+	# thread = threading.Thread(target=recieve)
+	# thread.start()
+	app.exec_()
