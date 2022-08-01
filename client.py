@@ -32,8 +32,8 @@ class MainUI(QMainWindow):
 	def send(self):
 		msg = self.messageEdit.text()
 		self.messageEdit.clear()
-		message = msg.encode(FORMAT)
-		self.client.sendall(f"[{self.username}]: {message}")
+		message = f"[{self.username}]: {msg}".encode(FORMAT)
+		self.client.sendall(message)
 	
 	def disconnect(self):
 		self.client.sendall(DISCONNECT_MSG.encode(FORMAT))
