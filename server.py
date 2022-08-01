@@ -13,22 +13,22 @@ server.bind(ADDR)
 
 clients = set()
 clients_lock = threading.Lock()
-client_usernames = []
+
+def send2clients(msg):
+	with clients_lock:
+		for c in clients:
+			c.sendall(msg.encode(FORMAT))
 
 def handle_client(conn, addr):
 	print(f"[NEW CONNECTION] {addr} connected!")
 	try:
 		connected = True
 		while connected:
-			msg = conn.recv(1024).decode(FORMAT)
-			if "# new user: " in msg:
-				client_usernames.append(msg[11:-1])
+			msg = conn.recv(1024).decode(FORMAT)			
 			if msg == DISCONNECT_MSG:
 				connected = False
 			print(f"[{addr}]: {msg}")
-			with clients_lock:
-				for c in clients:
-					c.sendall(f"[{addr}]: {msg}".encode(FORMAT))
+			send2clients(msg)
 	finally:
 		with clients_lock:
 			clients.remove(conn)

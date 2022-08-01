@@ -8,6 +8,8 @@ import time
 
 FORMAT = 'utf-8'
 DISCONNECT_MSG = "!d"
+
+
 class MainUI(QMainWindow):
 	def __init__(self):
 		super().__init__()
@@ -15,40 +17,35 @@ class MainUI(QMainWindow):
 		self.ConnectBTN.clicked.connect(self.connect_server)
 		self.SendBTN.clicked.connect(self.send)
 		self.DisconnectBTN.clicked.connect(self.disconnect)
+		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.show()
 	
 	def connect_server(self):
 		self.server = self.IPEdit.text()
 		self.port = self.PortEdit.text()
-		self.addr = (self.server, self.port)
-
-		self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.username = self.UsernameEdit.text()
+		self.addr = (self.server, int(self.port))
 		self.client.connect(self.addr)
-		
 		time.sleep(0.5)
-		
-		self.client.sendall(f"# new user: {self.UsernameEdit.text()}".encode(FORMAT))
+		reciever.start()
 	
-
 	def send(self):
 		msg = self.messageEdit.text()
 		self.messageEdit.clear()
-
 		message = msg.encode(FORMAT)
-		self.client.sendall(message)
+		self.client.sendall(f"[{self.username}]: {message}")
 	
 	def disconnect(self):
 		self.client.sendall(DISCONNECT_MSG.encode(FORMAT))
 
-# def recieve():
-# 		while True:
-# 			msg = UIWindow.client.recv(1024).decode(FORMAT)
-# 			UIWindow.MessagesDisplay.insertPlainText(msg)
+def recieve():
+	while True:
+		msg = UIWindow.client.recv(1024).decode(FORMAT)
+		UIWindow.MessagesDisplay.insertPlainText(msg + "\n")
 
 
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	UIWindow = MainUI()
-	# thread = threading.Thread(target=recieve)
-	# thread.start()
+	reciever = threading.Thread(target=recieve)
 	app.exec_()
